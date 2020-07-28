@@ -4,17 +4,23 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MoviemarkerComponent } from './moviemarker/moviemarker.component';
+import { MaterialModule } from './material-module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MoviemarkerComponent
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
+    MaterialModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
-    BrowserAnimationsModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [MoviemarkerComponent]
 })
 export class AppModule { }
