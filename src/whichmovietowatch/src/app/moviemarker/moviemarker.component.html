@@ -2,7 +2,7 @@
    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
     <mat-icon>menu</mat-icon>
   </button>
-  <span>My App</span>
+  <span>Which movie to watch</span>
   <span class="example-spacer"></span>
   <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
     <mat-icon>favorite</mat-icon>
@@ -13,7 +13,7 @@
 </mat-toolbar>
 
 
-
+<!--
 <section>
   <div class="example-label">Raised</div>
   <div class="example-button-row">
@@ -24,9 +24,47 @@
     <button mat-raised-button disabled>Disabled</button>
     <a mat-raised-button href="https://www.google.com/" target="_blank">Link</a>
   </div>
-</section>
+</section> -->
 
+<div class="main-cards">
 
+  <div class="movie-reel-container">
+    <div class="movie-reel" color="primary">
+      <mat-card *ngIf="currentMovie" color="primary">
+          <mat-card-header class="movie-reel-header">
+            <div mat-card-avatar></div>
+            <mat-card-title>{{currentMovie.title}}</mat-card-title>
+            <mat-card-subtitle>{{currentMovie.tagline}}</mat-card-subtitle>
+          </mat-card-header>
+          <div>
+            <iframe name="gsearch" class="movie-iframe" [src]="getMovieName()"></iframe>
+          </div>
+          <mat-card-content class="movie-reel-content">
+            {{currentMovie.overview}}
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="watched(true)">Watched</button>
+            <button mat-raised-button color="accent" (click)="watched(false)">NOT Watched</button>
+          </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
 
+  <div class="history-container">
+    <div class="history">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            History
+          </mat-card-title>
+        </mat-card-header>
+        <mat-list role="list">
+          <mat-list-item role="listitem" *ngFor="let entry of obj.entries(this.watchDb)">
+            {{entry[1][0].title}}
+          </mat-list-item>
+        </mat-list>
+      </mat-card>
+    </div>
+  </div>
 
-<iframe class="movie-iframe" [src]="movieName"></iframe>
+</div>

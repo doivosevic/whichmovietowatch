@@ -10,17 +10,21 @@ import { HttpClient } from '@angular/common/http';
 export class MoviemarkerComponent implements OnInit {
 
   public movieName;
+  public movies;
+  public currentMovie;
+  public watchDb = {};
+  public currentMovieIter = 0;
+  public obj = Object;
 
   constructor(private sanitizer: DomSanitizer, private http: HttpClient) {
-    this.movieName = this.sanitizer.bypassSecurityTrustResourceUrl("https://www.google.com/search?igu=1&ei=&q=Lion king");
-
 
     this.http.get('assets/movies.csv', { responseType: 'text' })
       .subscribe(
         data => {
-          console.log(data);
           var asJson = this.csvJSON(data);
-          console.log(asJson);
+          this.movies = asJson;
+          this.currentMovie = this.movies[this.currentMovieIter];
+          console.log(this.currentMovie);
         },
         error => {
           console.log(error);
@@ -28,20 +32,32 @@ export class MoviemarkerComponent implements OnInit {
       );
   }
 
+  getMovieName() {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      "https://www.bing.com/images/search?q=" + this.currentMovie.title + " ");
+  }
+
   ngOnInit(): void {
   }
 
-  //var csv is the CSV file with headers
+  watched(has: boolean) {
+    this.watchDb[this.currentMovie.imdb_id] = [this.currentMovie, has];
+
+    while (this.movies[this.currentMovieIter].imdb_id in this.watchDb) {
+      // console.log(this.currentMovieIter);
+      // console.log(this.watchDb);
+      this.currentMovieIter++;
+    }
+    this.currentMovie = this.movies[this.currentMovieIter];
+    // console.log(this.currentMovie);
+    // console.log(this.currentMovieIter);
+    // console.log(this.obj.entries(this.watchDb));
+  }
+
   csvJSON(csv) {
 
     var lines = csv.split("\n");
-
     var result = [];
-
-    // NOTE: If your columns contain commas in their values, you'll need
-    // to deal with those before doing the next step
-    // (you might convert them to &&& or something, then covert them back later)
-    // jsfiddle showing the issue https://jsfiddle.net/
     var headers = lines[0].split(";");
 
     for (var i = 1; i < lines.length; i++) {
@@ -57,7 +73,6 @@ export class MoviemarkerComponent implements OnInit {
 
     }
 
-    //return result; //JavaScript object
-    return result; //JSON
+    return result;
   }
 }
