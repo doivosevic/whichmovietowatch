@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
+import { GapiService } from '../gapi.service';
 
 @Component({
   selector: 'app-moviemarker',
@@ -16,7 +17,8 @@ export class MoviemarkerComponent implements OnInit {
   public currentMovieIter = 0;
   public obj = Object;
 
-  constructor(private sanitizer: DomSanitizer, private http: HttpClient) {
+
+  constructor(private sanitizer: DomSanitizer, private http: HttpClient, public gapiService: GapiService) {
 
     this.http.get('assets/movies.csv', { responseType: 'text' })
       .subscribe(
@@ -24,12 +26,17 @@ export class MoviemarkerComponent implements OnInit {
           var asJson = this.csvJSON(data);
           this.movies = asJson;
           this.currentMovie = this.movies[this.currentMovieIter];
-          console.log(this.currentMovie);
+          // console.log(this.currentMovie);
         },
         error => {
           console.log(error);
         }
-      );
+    );
+
+    this.gapiService.isSignedInSubject.subscribe(isHe => {
+      console.log(isHe);
+      gapiService.getFiles().then(files => console.log(files));
+    });
   }
 
   getMovieName() {
@@ -40,7 +47,13 @@ export class MoviemarkerComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  saveHistory() {
+    console.log(this.watchDb);
+    this.gapiService.createFile(this.watchDb);
+  }
+
   watched(has: boolean) {
+    console.log(has);
     this.watchDb[this.currentMovie.imdb_id] = [this.currentMovie, has];
 
     while (this.movies[this.currentMovieIter].imdb_id in this.watchDb) {

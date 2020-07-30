@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MoviemarkerComponent } from './moviemarker/moviemarker.component';
 import { MaterialModule } from './material-module';
 import { HttpClientModule } from '@angular/common/http';
+import { GapiService } from './gapi.service';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,9 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserAnimationsModule,
     AppRoutingModule,
   ],
-  providers: [],
+  providers: [
+    GapiService,
+  ],
   bootstrap: [MoviemarkerComponent]
 })
 export class AppModule { }

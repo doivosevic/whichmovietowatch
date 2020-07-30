@@ -1,3 +1,11 @@
+
+<p>Drive API Quickstart</p>
+
+<button id="authorize_button" (click)="gapiService.signIn()">Authorize</button>
+<button id="signout_button">Sign Out</button>
+
+<pre id="content" style="white-space: pre-wrap;"></pre>
+
 <mat-toolbar color="primary">
    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
     <mat-icon>menu</mat-icon>
@@ -63,6 +71,9 @@
             {{entry[1][0].title}}
           </mat-list-item>
         </mat-list>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="saveHistory()">Save</button>
+        </mat-card-actions>
       </mat-card>
     </div>
   </div>
