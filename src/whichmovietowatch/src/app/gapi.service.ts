@@ -8,22 +8,18 @@ declare var gapi;
 })
 export class GapiService {
 
-  // Client ID and API key from the Developer Console
   CLIENT_ID = '1097533701822-r02tp6adfc0s09705fnaiosdr030po55.apps.googleusercontent.com';
   API_KEY = 'AIzaSyAGJA4dFYvIC8gTmYYwDNlI0iSfBA_Ounc';
 
-    // Array of API discovery doc URLs for APIs used by the quickstart
+  // Array of API discovery doc URLs for APIs used by the quickstart
   DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
-    // Authorization scopes required by the API; multiple scopes can be
-    // included, separated by spaces.
   SCOPES = 'https://www.googleapis.com/auth/drive  https://www.googleapis.com/auth/drive.file  https://www.googleapis.com/auth/drive.readonly  https://www.googleapis.com/auth/drive.metadata.readonly  https://www.googleapis.com/auth/drive.appdata  https://www.googleapis.com/auth/drive.metadata  https://www.googleapis.com/auth/drive.photos.readonly';
 
   isSignedInSubject: BehaviorSubject<boolean>;
 
   constructor() {
     this.isSignedInSubject = new BehaviorSubject<boolean>(false);
-    console.log('loading');
   }
 
   loadedGapi = this.loadGapi();
@@ -52,53 +48,68 @@ export class GapiService {
     });
   }
 
-  public getFiles(): Promise<any[]> {
-    console.log(this);
-    console.log(GapiService);
-    return this.loadedGapi.then(() => gapi.client.drive.files.list({
-      'spaces': 'appDataFolder',
+  public getFiles(fromAppData: boolean = false): Promise<any[]> {
+    let metadata = {
+      //'spaces': 'appDataFolder',
       'pageSize': 100,
-      'fields': "nextPageToken, files(id, name)"
-    }).then(function (response) {
+      'fields': "nextPageToken, files(name,id)"
+    };
+    if (fromAppData) metadata['spaces'] = 'appDataFolder';
+    //console.log(metadata);
+
+    return this.loadedGapi.then(() => gapi.client.drive.files.list(metadata).then(function (response) {
       var files = response.result.files;
       return files;
     }));
   }
 
-  public createFile(content) {
-    console.log('create');
-    this.loadedGapi.then(() => {
-      var fileMetadata = {
-        'name': 'wmtwDb',
-        'parents': ['appDataFolder']
-      };
-      var media = {
-        mimeType: 'application/text',
-        body: JSON.stringify(content)
-      };
-      console.log('files.create');
-      gapi.client.drive.files.create({
-        resource: fileMetadata,
-        media: media,
-        fields: 'id'
-      }, function (err, file) {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log('Folder Id:', file.id);
-        }
-      }).then(apiResponse => {
-        console.log(apiResponse);
-        fetch(`https://www.googleapis.com/upload/drive/v3/files/${apiResponse.result.id}`, {
-          method: 'PATCH',
-          headers: new Headers({
-            'Authorization': `Bearer ${gapi.client.getToken().access_token}`,
-            'Content-Type': 'application/text'
-          }),
-          body: JSON.stringify(content)
-        })
-      }).then(res => console.log(res));
+  public getFileNamed(name: string, fromAppdata: boolean = false): Promise<any> {
+    return this.getFiles(fromAppdata).then(files => {
+      console.log(files);
+      let res = files.find(file => {
+        return file.name == name;
+      });
 
+      return res;
+    });
+  }
+
+  public fillNewFile(content, name: string, inAppdata: boolean = false, id: string = undefined): Promise<void | Response> {
+
+    var fileMetadata = {
+      'name': name,
+      'mimeType': "application/json", // mimeType at Google Drive
+      //'parents': ['appDataFolder']
+    };
+    if (inAppdata) fileMetadata['parents'] = ['appDataFolder'];
+    // if (id) fileMetadata['id'] = id;
+
+    console.log(fileMetadata);
+
+    var form = new FormData();
+    form.append("metadata", new Blob([JSON.stringify(fileMetadata)], { type: "application/json" }));
+    form.append("file", JSON.stringify(content));
+
+    return fetch("https://www.googleapis.com/upload/drive/v3/files/" + (id ? id + '/' : '') + "?uploadType=multipart" + (id ? "" : "&fields=id"), {
+      method: id ? 'PATCH' : 'POST',
+      headers: new Headers({ 'Authorization': `Bearer ${gapi.client.getToken().access_token}` }),
+      body: form
+    }).then(res => { console.log(res); return res; });
+  }
+
+  public downloadFile(fileId): Promise<Response> {
+
+    return fetch("https://www.googleapis.com/drive/v3/files/" + fileId + "?alt=media" , {
+      method: 'GET',
+      headers: new Headers({ 'Authorization': `Bearer ${gapi.client.getToken().access_token}` })
+    });
+  }
+
+  public deleteFile(fileId): Promise<Response> {
+
+    return fetch("https://www.googleapis.com/drive/v3/files/" + fileId, {
+      method: 'DELETE',
+      headers: new Headers({ 'Authorization': `Bearer ${gapi.client.getToken().access_token}` })
     });
   }
 

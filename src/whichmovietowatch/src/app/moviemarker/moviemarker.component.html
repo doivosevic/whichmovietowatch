@@ -1,11 +1,3 @@
-
-<p>Drive API Quickstart</p>
-
-<button id="authorize_button" (click)="gapiService.signIn()">Authorize</button>
-<button id="signout_button">Sign Out</button>
-
-<pre id="content" style="white-space: pre-wrap;"></pre>
-
 <mat-toolbar color="primary">
    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
     <mat-icon>menu</mat-icon>
@@ -18,6 +10,9 @@
   <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
    <mat-icon>share</mat-icon>
  </button>
+
+ <button id="authorize_button" mat-raised-button color="accent" (click)="gapiService.signIn()">Authorize</button>
+ <button id="signout_button" mat-raised-button color="warn">Sign Out</button>
 </mat-toolbar>
 
 
@@ -68,7 +63,8 @@
         </mat-card-header>
         <mat-list role="list">
           <mat-list-item role="listitem" *ngFor="let entry of obj.entries(this.watchDb)">
-            {{entry[1][0].title}}
+            {{entry[1].movie.title}}
+            <div mat-raised-button color="primary" (click)="removeWatched(entry)">X</div>
           </mat-list-item>
         </mat-list>
         <mat-card-actions>
