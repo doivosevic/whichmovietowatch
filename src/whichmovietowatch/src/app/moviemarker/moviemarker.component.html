@@ -40,7 +40,7 @@
             <mat-card-subtitle>{{currentMovie.tagline}}</mat-card-subtitle>
           </mat-card-header>
           <div>
-            <iframe name="gsearch" class="movie-iframe" [src]="getMovieName()"></iframe>
+            <iframe name="gsearch" class="movie-iframe" [src]="currentMovieSearchLink"></iframe>
           </div>
           <mat-card-content class="movie-reel-content">
             {{currentMovie.overview}}
@@ -62,9 +62,11 @@
           </mat-card-title>
         </mat-card-header>
         <mat-list role="list">
-          <mat-list-item role="listitem" *ngFor="let entry of obj.entries(this.watchDb)">
-            {{entry[1].movie.title}}
-            <div mat-raised-button color="primary" (click)="removeWatched(entry)">X</div>
+          <mat-list-item role="listitem" *ngFor="let entry of entries">
+            <div  [ngClass]="entry[1].watched ? 'green' : 'red'" class="history-list-item">
+              {{entry[1].movie.title}}
+              <button mat-mini-fab color="primary" (click)="removeWatched(entry)">X</button>
+            </div>
           </mat-list-item>
         </mat-list>
         <mat-card-actions>

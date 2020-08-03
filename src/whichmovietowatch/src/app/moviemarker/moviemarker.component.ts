@@ -13,9 +13,10 @@ export class MoviemarkerComponent implements OnInit {
   public movieName;
   public movies;
   public currentMovie;
+  public currentMovieSearchLink;
   public watchDb = {};
   public currentMovieIter = 0;
-  public obj = Object;
+  public entries: any[];
 
   public initialized = false;
   public cfgFileId;
@@ -23,6 +24,7 @@ export class MoviemarkerComponent implements OnInit {
 
 
   constructor(private sanitizer: DomSanitizer, private http: HttpClient, public gapiService: GapiService) {
+    this.entries = [];
 
     this.http.get('assets/movies.csv', { responseType: 'text' })
       .subscribe(
@@ -30,7 +32,7 @@ export class MoviemarkerComponent implements OnInit {
           var asJson = this.csvJSON(data);
           this.movies = asJson;
           this.currentMovie = this.movies[this.currentMovieIter];
-          console.log(this.currentMovie);
+          this.refreshCurrentMovie();
         },
         error => {
           console.log(error);
@@ -66,8 +68,10 @@ export class MoviemarkerComponent implements OnInit {
                           this.watchDb[element] = dbFileContent[element];
                         });
 
+                        this.refreshEntries();
                         this.cfgFileId = cfgFile.id;
                         this.dbFileId = gdriveDbFileId
+                        this.refreshCurrentMovie();
 
                         console.log(this.watchDb);
                         success(dbFileContent);
@@ -80,7 +84,7 @@ export class MoviemarkerComponent implements OnInit {
                     }
                   })
                 })
-              })
+              });
             }
             else {
               reject('no cfg file');
@@ -114,11 +118,6 @@ export class MoviemarkerComponent implements OnInit {
     });
   }
 
-  getMovieName() {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(
-      "https://www.bing.com/images/search?q=" + this.currentMovie.title + " ");
-  }
-
   ngOnInit(): void {
   }
 
@@ -128,25 +127,30 @@ export class MoviemarkerComponent implements OnInit {
   }
 
   watched(has: boolean) {
-    console.log(has);
     this.watchDb[this.currentMovie.imdb_id] = { movie: this.currentMovie, watched: has };
+    this.refreshEntries();
+    this.refreshCurrentMovie();
+  }
 
-    console.log(this.obj.entries(this.watchDb));
+  refreshEntries() {
+    this.entries = Object.entries(this.watchDb);
+  }
+
+  refreshCurrentMovie() {
 
     while (this.movies[this.currentMovieIter].imdb_id in this.watchDb) {
-      // console.log(this.currentMovieIter);
-      // console.log(this.watchDb);
       this.currentMovieIter++;
     }
     this.currentMovie = this.movies[this.currentMovieIter];
-    // console.log(this.currentMovie);
-    // console.log(this.currentMovieIter);
-    // console.log(this.obj.entries(this.watchDb));
+
+    this.currentMovieSearchLink = this.sanitizer.bypassSecurityTrustResourceUrl(
+      "https://www.bing.com/images/search?q=" + this.currentMovie.title + " ");
   }
 
   removeWatched(movie) {
     console.log(movie);
     delete this.watchDb[movie[0]];
+    this.refreshEntries();
     console.log(this.watchDb);
   }
 
