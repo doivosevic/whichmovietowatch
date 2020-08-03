@@ -8,7 +8,7 @@ declare var gapi;
 })
 export class GapiService {
 
-  CLIENT_ID = '1097533701822-r02tp6adfc0s09705fnaiosdr030po55.apps.googleusercontent.com';
+  CLIENT_ID = '1097533701822-41e8b1omqclkpulte78giltbqh1b782h.apps.googleusercontent.com';
   API_KEY = 'AIzaSyAGJA4dFYvIC8gTmYYwDNlI0iSfBA_Ounc';
 
   // Array of API discovery doc URLs for APIs used by the quickstart
