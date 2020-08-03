@@ -62,7 +62,7 @@
           </mat-card-title>
         </mat-card-header>
         <mat-list role="list">
-          <mat-list-item role="listitem" *ngFor="let entry of entries">
+          <mat-list-item role="listitem" *ngFor="let entry of entries" class="history-list-item-container">
             <div  [ngClass]="entry[1].watched ? 'green' : 'red'" class="history-list-item">
               {{entry[1].movie.title}}
               <button mat-mini-fab color="primary" (click)="removeWatched(entry)">X</button>
