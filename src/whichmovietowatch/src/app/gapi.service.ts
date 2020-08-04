@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 declare var gapi;
@@ -8,7 +8,8 @@ declare var gapi;
 })
 export class GapiService {
 
-  CLIENT_ID = '1097533701822-41e8b1omqclkpulte78giltbqh1b782h.apps.googleusercontent.com';
+  CLIENT_ID_PROD = '1097533701822-41e8b1omqclkpulte78giltbqh1b782h.apps.googleusercontent.com';
+  CLIENT_ID_DEV = '1097533701822-r02tp6adfc0s09705fnaiosdr030po55.apps.googleusercontent.com';
   API_KEY = 'AIzaSyAGJA4dFYvIC8gTmYYwDNlI0iSfBA_Ounc';
 
   // Array of API discovery doc URLs for APIs used by the quickstart
@@ -31,7 +32,7 @@ export class GapiService {
       return gapi.client.init({
 
         apiKey: this.API_KEY,
-        clientId: this.CLIENT_ID,
+        clientId: isDevMode() ? this.CLIENT_ID_DEV : this.CLIENT_ID_PROD,
         discoveryDocs: this.DISCOVERY_DOCS,
         scope: this.SCOPES
 

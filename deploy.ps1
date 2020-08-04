@@ -5,4 +5,5 @@ cd ..\..
 Robocopy.exe .\src\whichmovietowatch\dist\whichmovietowatch .\docs /MIR
 Robocopy.exe .\src\whichmovietowatch\dist\whichmovietowatch .\docs\whichmovietowatch /MIR
 git add --all .
+git commit -m "deploy update"
 git push --force
