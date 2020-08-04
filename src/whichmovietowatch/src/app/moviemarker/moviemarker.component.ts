@@ -3,12 +3,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { GapiService } from '../gapi.service';
 
+let t: any;
+
 @Component({
   selector: 'app-moviemarker',
   templateUrl: './moviemarker.component.html',
   styleUrls: ['./moviemarker.component.styl']
 })
-export class MoviemarkerComponent {
+export class MoviemarkerComponent implements OnInit {
 
   public movieName;
   public movies;
@@ -26,9 +28,19 @@ export class MoviemarkerComponent {
 
   public activeMarking: any;
 
+  public activeMarkingChanged(event) {
+    this.activeMarking = event.value;
+    this.refreshCurrentMovie();
+    this.refreshEntries();
+  }
+
+  ngOnInit() {
+  }
+
   constructor(private sanitizer: DomSanitizer, private http: HttpClient, public gapiService: GapiService, private ref: ChangeDetectorRef) {
     this.entries = [];
     this.activeMarking = 'all';
+    t = this;
 
     this.http.get('assets/movies.csv', { responseType: 'text' })
       .subscribe(
@@ -37,14 +49,11 @@ export class MoviemarkerComponent {
           this.movies = asJson;
           this.currentMovie = this.movies[this.currentMovieIter];
           this.refreshCurrentMovie();
-          this.refreshEntries();
         },
         error => {
           console.log(error);
         }
       );
-
-    let t = this;
 
     this.gapiService.isSignedInSubject.subscribe(isHe => {
       if (this.initialized == false && isHe) {
@@ -60,7 +69,7 @@ export class MoviemarkerComponent {
     });
   }
 
-  tryUseExistingDb(): Promise<any> {
+  public tryUseExistingDb(): Promise<any> {
     return new Promise((success, reject) => {
 
       this.gapiService.getFileNamed("wmtw.cfg", true).then(cfgFile => {
@@ -102,7 +111,7 @@ export class MoviemarkerComponent {
     })
   }
 
-  resetCfgAndDb() {
+  public resetCfgAndDb() {
     console.log('didnt find cfg');
 
     this.gapiService.getFiles(true).then(appDataFiles => {
@@ -124,7 +133,7 @@ export class MoviemarkerComponent {
   }
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
+  public handleKeyboardEvent(event: KeyboardEvent) {
     // console.log(event.keyCode);
     if (event.keyCode == 37) {
       this.watched(false);
@@ -134,7 +143,7 @@ export class MoviemarkerComponent {
     }
   }
 
-  saveHistory() {
+  public saveHistory() {
     console.log(this.watchDb);
     if (this.initialized != true) {
       this.gapiService.signIn().then(() => this.gapiService.fillNewFile(this.watchDb, 'wmtwDb', false, this.dbFileId));
@@ -144,21 +153,25 @@ export class MoviemarkerComponent {
     }
   }
 
-  watched(has: boolean) {
+  public watched(has: boolean) {
     this.watchDb[this.currentMovie.imdb_id] = { movie: this.currentMovie, watched: has };
     this.refreshEntries();
     this.refreshCurrentMovie();
   }
 
-  refreshEntries() {
-    this.entries = Object.entries(this.watchDb);
-    console.log(this.entries);
-    if (this.activeMarking == 'watched') this.entries = this.entries.filter(e => e[1].watched == true);
-    else if (this.activeMarking == 'notwatched') this.entries = this.entries.filter(e => e[1].watched == false);
+  public refreshEntries() {
+    console.log('refresh entries');
+
+    this.entries.length = 0;
+    if (this.activeMarking == 'all') this.entries.push(...Object.entries(this.watchDb));
+    if (this.activeMarking == 'watched') this.entries.push(...Object.entries(this.watchDb).filter(e => e[1].watched == true));
+    if (this.activeMarking == 'notwatched') this.entries.push(...Object.entries(this.watchDb).filter(e => e[1].watched == false));
+
     this.ref.detectChanges();
+    console.log(this.entries);
   }
 
-  refreshCurrentMovie() {
+  public refreshCurrentMovie() {
 
     while (this.movies[this.currentMovieIter].imdb_id in this.watchDb) {
       this.currentMovieIter++;
@@ -169,14 +182,14 @@ export class MoviemarkerComponent {
       "https://www.bing.com/images/search?q=" + this.currentMovie.title + " movie");
   }
 
-  removeWatched(movie) {
+  public removeWatched(movie) {
     console.log(movie);
     delete this.watchDb[movie[0]];
     this.refreshEntries();
     console.log(this.watchDb);
   }
 
-  csvJSON(csv) {
+  public csvJSON(csv) {
 
     var lines = csv.split("\n");
     var result = [];

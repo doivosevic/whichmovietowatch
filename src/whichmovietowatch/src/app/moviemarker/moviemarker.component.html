@@ -12,11 +12,11 @@
       <mat-icon>share</mat-icon>
     </button>
 
-    <mat-button-toggle-group [(value)]="activeMarking">
+    <mat-button-toggle-group [(value)]="activeMarking" (change)="activeMarkingChanged($event)">
       <mat-button-toggle value="all">Mark all</mat-button-toggle>
       <mat-button-toggle value="watched">Mark watched</mat-button-toggle>
       <mat-button-toggle value="notwatched">Mark not watched</mat-button-toggle>
-    </mat-button-toggle-group> {{activeMarking}}
+    </mat-button-toggle-group>
   </div>
 
   <div class="right-navbar-collection">
