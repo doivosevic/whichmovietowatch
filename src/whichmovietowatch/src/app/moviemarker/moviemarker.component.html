@@ -1,55 +1,71 @@
-<mat-toolbar color="primary">
-   <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span>Which movie to watch</span>
-  <span class="example-spacer"></span>
-  <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-    <mat-icon>favorite</mat-icon>
-  </button>
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-   <mat-icon>share</mat-icon>
- </button>
+<mat-toolbar class="navbar" color="primary">
+  <div class="toolbar-left">
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>Which movie to watch</span>
+    <span class="example-spacer"></span>
+    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+      <mat-icon>favorite</mat-icon>
+    </button>
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+      <mat-icon>share</mat-icon>
+    </button>
 
- <button id="authorize_button" mat-raised-button color="accent" (click)="gapiService.signIn()">Authorize</button>
- <button id="signout_button" mat-raised-button color="warn">Sign Out</button>
-</mat-toolbar>
-
-
-<!--
-<section>
-  <div class="example-label">Raised</div>
-  <div class="example-button-row">
-    <button mat-raised-button>Basic</button>
-    <button mat-raised-button color="primary">Primary</button>
-    <button mat-raised-button color="accent">Accent</button>
-    <button mat-raised-button color="warn">Warn</button>
-    <button mat-raised-button disabled>Disabled</button>
-    <a mat-raised-button href="https://www.google.com/" target="_blank">Link</a>
+    <mat-button-toggle-group [(value)]="activeMarking">
+      <mat-button-toggle value="all">Mark all</mat-button-toggle>
+      <mat-button-toggle value="watched">Mark watched</mat-button-toggle>
+      <mat-button-toggle value="notwatched">Mark not watched</mat-button-toggle>
+    </mat-button-toggle-group> {{activeMarking}}
   </div>
-</section> -->
+
+  <div class="right-navbar-collection">
+    <button id="signout_button" mat-raised-button color="warn" (click)="gapiService.signOut()">Sign Out</button>
+    <div class="profile-container" *ngIf="userProfile">
+      <mat-card>
+        <mat-card-header>
+          <div mat-card-avatar [style]="' background-size: cover; background-image: url(' + userProfile.PK+ ')'"></div>
+          <mat-card-title>{{userProfile.Cd}}</mat-card-title>
+          <mat-card-subtitle>{{userProfile.yu}}</mat-card-subtitle>
+        </mat-card-header>
+      </mat-card>
+    </div>
+  </div>
+</mat-toolbar>
 
 <div class="main-cards">
 
   <div class="movie-reel-container">
+    <div class="nav-button-container nav-button-container-left">
+      Didn't watch
+      <button mat-fab class="nav-button" (click)="watched(false)"><span class="material-icons">
+          fast_rewind
+        </span></button>
+    </div>
     <div class="movie-reel" color="primary">
       <mat-card *ngIf="currentMovie" color="primary">
-          <mat-card-header class="movie-reel-header">
-            <div mat-card-avatar></div>
-            <mat-card-title>{{currentMovie.title}}</mat-card-title>
-            <mat-card-subtitle>{{currentMovie.tagline}}</mat-card-subtitle>
-          </mat-card-header>
-          <div>
-            <iframe name="gsearch" class="movie-iframe" [src]="currentMovieSearchLink"></iframe>
-          </div>
-          <mat-card-content class="movie-reel-content">
-            {{currentMovie.overview}}
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="primary" (click)="watched(true)">Watched</button>
-            <button mat-raised-button color="accent" (click)="watched(false)">NOT Watched</button>
-          </mat-card-actions>
+        <mat-card-header class="movie-reel-header">
+          <div mat-card-avatar></div>
+          <mat-card-title>{{currentMovie.title}}</mat-card-title>
+          <mat-card-subtitle>{{currentMovie.tagline}}</mat-card-subtitle>
+        </mat-card-header>
+        <div>
+          <iframe name="gsearch" class="movie-iframe" [src]="currentMovieSearchLink"></iframe>
+        </div>
+        <mat-card-content class="movie-reel-content">
+          {{currentMovie.overview}}
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="watched(true)">Watched</button>
+          <button mat-raised-button color="accent" (click)="watched(false)">NOT Watched</button>
+        </mat-card-actions>
       </mat-card>
+    </div>
+    <div class="nav-button-container nav-button-container-right">
+      Watched
+      <button mat-fab class="nav-button" (click)="watched(true)"><span class="material-icons">
+          fast_forward
+        </span></button>
     </div>
   </div>
 
@@ -58,20 +74,20 @@
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            History
+            Watched / Didn't watch
           </mat-card-title>
         </mat-card-header>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="saveHistory()">Save</button>
+        </mat-card-actions>
         <mat-list role="list">
           <mat-list-item role="listitem" *ngFor="let entry of entries" class="history-list-item-container">
-            <div  [ngClass]="entry[1].watched ? 'green' : 'red'" class="history-list-item">
+            <div [ngClass]="entry[1].watched ? 'green' : 'red'" class="history-list-item">
               {{entry[1].movie.title}}
               <button mat-mini-fab color="primary" (click)="removeWatched(entry)">X</button>
             </div>
           </mat-list-item>
         </mat-list>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveHistory()">Save</button>
-        </mat-card-actions>
       </mat-card>
     </div>
   </div>

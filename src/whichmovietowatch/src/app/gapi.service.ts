@@ -17,7 +17,8 @@ export class GapiService {
 
   SCOPES = 'https://www.googleapis.com/auth/drive  https://www.googleapis.com/auth/drive.file  https://www.googleapis.com/auth/drive.readonly  https://www.googleapis.com/auth/drive.metadata.readonly  https://www.googleapis.com/auth/drive.appdata  https://www.googleapis.com/auth/drive.metadata  https://www.googleapis.com/auth/drive.photos.readonly';
 
-  isSignedInSubject: BehaviorSubject<boolean>;
+  public isSignedInSubject: BehaviorSubject<boolean>;
+  public authInstance: any;
 
   constructor() {
     this.isSignedInSubject = new BehaviorSubject<boolean>(false);
@@ -38,7 +39,8 @@ export class GapiService {
 
       }).then(function () {
         // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen((isIt) => t.isSignedInSubject.next(isIt));
+        t.authInstance = gapi.auth2.getAuthInstance();
+        t.authInstance.isSignedIn.listen((isIt) => t.isSignedInSubject.next(isIt));
 
         // Handle the initial sign-in state.
         t.isSignedInSubject.next(gapi.auth2.getAuthInstance().isSignedIn.get());
@@ -114,11 +116,11 @@ export class GapiService {
     });
   }
 
-  public signIn() {
-    gapi.auth2.getAuthInstance().signIn();
+  public signIn(): Promise<void> {
+    return gapi.auth2.getAuthInstance().signIn();
   }
 
-  public signOut() {
-    gapi.auth2.getAuthInstance().signOut();
+  public signOut(): Promise<void> {
+    return gapi.auth2.getAuthInstance().signOut().then(x => console.log(x));
   }
 }
