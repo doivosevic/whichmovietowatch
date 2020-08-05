@@ -201,6 +201,7 @@ export class MoviemarkerComponent implements OnInit {
   }
 
   public refreshCurrentMovie() {
+    this.currentMovie = null;
 
     if (this.activeMarking == ActiveMarking.all) {
       for (let iter = 0; iter < this.movies.length; iter++) {
@@ -216,7 +217,10 @@ export class MoviemarkerComponent implements OnInit {
       for (let iter = 0; iter < this.movies.length; iter++) {
         let movie = this.watchDb[this.movies[iter].imdb_id];
 
-        if (movie && movie.attributes.includes(WatchAttributes.seen) == true && movie.attributes[this.positiveActionName] === undefined) {
+        if (movie
+            && movie.attributes.includes(WatchAttributes.seen)
+            && !movie.attributes.includes(this.positiveActionName)
+            && !movie.attributes.includes(this.negativeActionName)) {
           this.currentMovie = this.movies[iter];
           break;
         }
@@ -227,7 +231,10 @@ export class MoviemarkerComponent implements OnInit {
       for (let iter = 0; iter < this.movies.length; iter++) {
         let movie = this.watchDb[this.movies[iter].imdb_id];
 
-        if (movie && movie.attributes && movie.attributes.includes(WatchAttributes.unseen) && !movie.attributes.includes(this.positiveActionName)) {
+        if (movie
+            && movie.attributes && movie.attributes.includes(WatchAttributes.unseen)
+            && !movie.attributes.includes(this.positiveActionName)
+            && !movie.attributes.includes(this.negativeActionName)) {
           this.currentMovie = this.movies[iter];
           break;
         }

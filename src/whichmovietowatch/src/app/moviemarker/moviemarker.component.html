@@ -1,27 +1,22 @@
-<mat-toolbar class="navbar" color="primary">
-  <div class="toolbar-left">
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span>Which movie to watch</span>
-    <span class="example-spacer"></span>
-    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-      <mat-icon>favorite</mat-icon>
-    </button>
-    <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-      <mat-icon>share</mat-icon>
-    </button>
+<div class="navbar" color="primary">
+  <div class="navbar-left">
+    <div id="navbar-title"><span>Which movie to watch</span></div>
+  </div>
 
+  <div class="navbar-centre-left">
     <mat-button-toggle-group [(value)]="activeMarking" (change)="activeMarkingChanged($event)">
       <mat-button-toggle value="all">Mark all</mat-button-toggle>
       <mat-button-toggle value="seen">Mark watched</mat-button-toggle>
       <mat-button-toggle value="unseen">Mark not watched</mat-button-toggle>
     </mat-button-toggle-group>
+  </div>
+
+  <div class="navbar-centre-right">
     <button mat-raised-button color="accent" (click)="saveHistory()">Save</button>
     <button id="signout_button" mat-raised-button color="warn" (click)="gapiService.signOut()">Sign Out</button>
   </div>
 
-  <div class="right-navbar-collection">
+  <div class="navbar-right">
     <div class="profile-container" *ngIf="userProfile">
       <mat-card>
         <mat-card-header>
@@ -32,11 +27,11 @@
       </mat-card>
     </div>
   </div>
-</mat-toolbar>
+</div>
 
 <div class="main-cards">
 
-  <div class="movie-reel-container">
+  <div class="movie-reel-container" *ngIf="currentMovie">
     <div class="nav-button-container nav-button-container-left negative-action">
       <div class="negative-action">{{negativeActionName}}</div>
       <button mat-fab color="primary" class="nav-button" (click)="watched(false)"><span class="material-icons">
