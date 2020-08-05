@@ -36,9 +36,9 @@
 <div class="main-cards">
 
   <div class="movie-reel-container">
-    <div class="nav-button-container nav-button-container-left">
-      Didn't watch
-      <button mat-fab class="nav-button" (click)="watched(false)"><span class="material-icons">
+    <div class="nav-button-container nav-button-container-left negative-action">
+      <div class="negative-action">{{negativeActionName}}</div>
+      <button mat-fab color="primary" class="nav-button" (click)="watched(false)"><span class="material-icons">
           fast_rewind
         </span></button>
     </div>
@@ -56,13 +56,13 @@
           {{currentMovie.overview}}
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="watched(true)">Watched</button>
-          <button mat-raised-button color="accent" (click)="watched(false)">NOT Watched</button>
+          <button mat-raised-button class="negative-action" color="primary" (click)="watched(false)">{{negativeActionName}}</button>
+          <button mat-raised-button class="positive-action" color="accent" (click)="watched(true)">{{positiveActionName}}</button>
         </mat-card-actions>
       </mat-card>
     </div>
     <div class="nav-button-container nav-button-container-right">
-      Watched
+      <div class="positive-action">{{positiveActionName}}</div>
       <button mat-fab class="nav-button" (click)="watched(true)"><span class="material-icons">
           fast_forward
         </span></button>

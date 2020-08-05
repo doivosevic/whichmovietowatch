@@ -12,6 +12,8 @@ let t: any;
 })
 export class MoviemarkerComponent implements OnInit {
 
+  public MOVIE_COUNT;
+
   public movieName;
   public movies;
   public currentMovie;
@@ -30,16 +32,36 @@ export class MoviemarkerComponent implements OnInit {
 
   public activeMarkingChanged(event) {
     this.activeMarking = event.value;
+    this.setActionNames();
     this.refreshCurrentMovie();
     this.refreshEntries();
   }
 
+  public positiveActionName: string;
+  public negativeActionName: string;
+
   ngOnInit() {
+  }
+
+  public setActionNames() {
+    if (this.activeMarking == 'all') {
+      this.positiveActionName = 'watched';
+      this.negativeActionName = "didn't watch";
+    }
+    else if (this.activeMarking == 'watched') {
+      this.positiveActionName = 'would rewatch';
+      this.negativeActionName = "wouldn't rewatch";
+    }
+    else if (this.activeMarking == 'notwatched') {
+      this.positiveActionName = 'would watch';
+      this.negativeActionName = "wouldn't watch";
+    }
   }
 
   constructor(private sanitizer: DomSanitizer, private http: HttpClient, public gapiService: GapiService, private ref: ChangeDetectorRef) {
     this.entries = [];
     this.activeMarking = 'all';
+    this.setActionNames();
     t = this;
 
     this.http.get('assets/movies.csv', { responseType: 'text' })
@@ -47,6 +69,7 @@ export class MoviemarkerComponent implements OnInit {
         data => {
           var asJson = this.csvJSON(data);
           this.movies = asJson;
+          this.MOVIE_COUNT = this.movies.length;
           this.currentMovie = this.movies[this.currentMovieIter];
           this.refreshCurrentMovie();
         },
@@ -154,7 +177,9 @@ export class MoviemarkerComponent implements OnInit {
   }
 
   public watched(has: boolean) {
-    this.watchDb[this.currentMovie.imdb_id] = { movie: this.currentMovie, watched: has };
+    this.watchDb[this.currentMovie.imdb_id] = { movie: this.currentMovie };
+    this.watchDb[this.currentMovie.imdb_id][this.positiveActionName] = has;
+
     this.refreshEntries();
     this.refreshCurrentMovie();
   }
@@ -163,9 +188,10 @@ export class MoviemarkerComponent implements OnInit {
     console.log('refresh entries');
 
     this.entries.length = 0;
-    if (this.activeMarking == 'all') this.entries.push(...Object.entries(this.watchDb));
-    if (this.activeMarking == 'watched') this.entries.push(...Object.entries(this.watchDb).filter(e => e[1].watched == true));
-    if (this.activeMarking == 'notwatched') this.entries.push(...Object.entries(this.watchDb).filter(e => e[1].watched == false));
+    var obEntries: any = Object.entries(this.watchDb);
+    if (this.activeMarking == 'all') this.entries.push(...obEntries);
+    if (this.activeMarking == 'watched') this.entries.push(...obEntries.filter(e => e[1].watched == true));
+    if (this.activeMarking == 'notwatched') this.entries.push(...obEntries.filter(e => e[1].watched == false));
 
     this.ref.detectChanges();
     console.log(this.entries);
@@ -173,10 +199,37 @@ export class MoviemarkerComponent implements OnInit {
 
   public refreshCurrentMovie() {
 
-    while (this.movies[this.currentMovieIter].imdb_id in this.watchDb) {
-      this.currentMovieIter++;
+    if (this.activeMarking == 'all') {
+      for (let iter = 0; iter < this.movies.length; iter++) {
+
+        if (!(this.movies[iter].imdb_id in this.watchDb)) {
+          this.currentMovie = this.movies[iter];
+          break;
+        }
+      }
     }
-    this.currentMovie = this.movies[this.currentMovieIter];
+    else if (this.activeMarking == 'watched') {
+
+      for (let iter = 0; iter < this.movies.length; iter++) {
+        let movie = this.watchDb[this.movies[iter].imdb_id];
+
+        if (movie && movie['watched'] == true && movie[this.positiveActionName] === undefined) {
+          this.currentMovie = this.movies[iter];
+          break;
+        }
+      }
+    }
+    else {
+
+      for (let iter = 0; iter < this.movies.length; iter++) {
+        let movie = this.watchDb[this.movies[iter].imdb_id];
+
+        if (movie && movie['watched'] == false && movie[this.positiveActionName] === undefined) {
+          this.currentMovie = this.movies[iter];
+          break;
+        }
+      }
+    }
 
     this.currentMovieSearchLink = this.sanitizer.bypassSecurityTrustResourceUrl(
       "https://www.bing.com/images/search?q=" + this.currentMovie.title + " movie");
