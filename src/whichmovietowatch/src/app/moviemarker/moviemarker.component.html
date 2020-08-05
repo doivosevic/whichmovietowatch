@@ -17,10 +17,11 @@
       <mat-button-toggle value="watched">Mark watched</mat-button-toggle>
       <mat-button-toggle value="notwatched">Mark not watched</mat-button-toggle>
     </mat-button-toggle-group>
+    <button mat-raised-button color="accent" (click)="saveHistory()">Save</button>
+    <button id="signout_button" mat-raised-button color="warn" (click)="gapiService.signOut()">Sign Out</button>
   </div>
 
   <div class="right-navbar-collection">
-    <button id="signout_button" mat-raised-button color="warn" (click)="gapiService.signOut()">Sign Out</button>
     <div class="profile-container" *ngIf="userProfile">
       <mat-card>
         <mat-card-header>
@@ -74,18 +75,20 @@
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            Watched / Didn't watch
+            {{positiveActionName}} / {{negativeActionName}}
           </mat-card-title>
         </mat-card-header>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveHistory()">Save</button>
-        </mat-card-actions>
         <mat-list role="list">
-          <mat-list-item role="listitem" *ngFor="let entry of entries" class="history-list-item-container">
-            <div [ngClass]="entry[1].watched ? 'green' : 'red'" class="history-list-item">
+          <mat-list-item role="listitem" *ngFor="let entry of entries" class="history-list-item-container" [ngClass]="entry[1].attributes.watched ? 'green' : 'red'">
+            <div mat-line class="history-list-item">
               {{entry[1].movie.title}}
-              <button mat-mini-fab color="primary" (click)="removeWatched(entry)">X</button>
             </div>
+            <div mat-line>
+              <mat-chip-list>
+                <mat-chip *ngFor="let att of keys(entry[1].attributes)">{{att}}</mat-chip>
+              </mat-chip-list>
+            </div>
+            <button mat-mini-fab color="primary" (click)="removeWatched(entry)">X</button>
           </mat-list-item>
         </mat-list>
       </mat-card>

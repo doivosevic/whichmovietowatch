@@ -1,7 +1,8 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, Input } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { GapiService } from '../gapi.service';
+import { Movie } from './movie';
 
 let t: any;
 
@@ -12,13 +13,11 @@ let t: any;
 })
 export class MoviemarkerComponent implements OnInit {
 
-  public MOVIE_COUNT;
-
-  public movieName;
-  public movies;
-  public currentMovie;
-  public currentMovieSearchLink;
-  public watchDb = {};
+  public movieName: string;
+  public movies: Movie[];
+  public currentMovie: Movie;
+  public currentMovieSearchLink: SafeResourceUrl;
+  public watchDb: { [imdb_id: string]: { movie: Movie, attributes: {} } } = {};
   public currentMovieIter = 0;
   public entries: any[];
 
@@ -69,7 +68,6 @@ export class MoviemarkerComponent implements OnInit {
         data => {
           var asJson = this.csvJSON(data);
           this.movies = asJson;
-          this.MOVIE_COUNT = this.movies.length;
           this.currentMovie = this.movies[this.currentMovieIter];
           this.refreshCurrentMovie();
         },
@@ -177,8 +175,12 @@ export class MoviemarkerComponent implements OnInit {
   }
 
   public watched(has: boolean) {
-    this.watchDb[this.currentMovie.imdb_id] = { movie: this.currentMovie };
-    this.watchDb[this.currentMovie.imdb_id][this.positiveActionName] = has;
+    if (this.activeMarking == 'all') {
+      this.watchDb[this.currentMovie.imdb_id] = { movie: this.currentMovie, attributes: {} };
+    }
+
+    this.watchDb[this.currentMovie.imdb_id].attributes[this.positiveActionName] = has;
+    console.log(this.watchDb)
 
     this.refreshEntries();
     this.refreshCurrentMovie();
@@ -190,8 +192,8 @@ export class MoviemarkerComponent implements OnInit {
     this.entries.length = 0;
     var obEntries: any = Object.entries(this.watchDb);
     if (this.activeMarking == 'all') this.entries.push(...obEntries);
-    if (this.activeMarking == 'watched') this.entries.push(...obEntries.filter(e => e[1].watched == true));
-    if (this.activeMarking == 'notwatched') this.entries.push(...obEntries.filter(e => e[1].watched == false));
+    if (this.activeMarking == 'watched') this.entries.push(...obEntries.filter(e => e[1].attributes.watched == true));
+    if (this.activeMarking == 'notwatched') this.entries.push(...obEntries.filter(e => e[1].attributes.watched == false));
 
     this.ref.detectChanges();
     console.log(this.entries);
@@ -213,7 +215,7 @@ export class MoviemarkerComponent implements OnInit {
       for (let iter = 0; iter < this.movies.length; iter++) {
         let movie = this.watchDb[this.movies[iter].imdb_id];
 
-        if (movie && movie['watched'] == true && movie[this.positiveActionName] === undefined) {
+        if (movie && movie.attributes['watched'] == true && movie.attributes[this.positiveActionName] === undefined) {
           this.currentMovie = this.movies[iter];
           break;
         }
@@ -224,7 +226,7 @@ export class MoviemarkerComponent implements OnInit {
       for (let iter = 0; iter < this.movies.length; iter++) {
         let movie = this.watchDb[this.movies[iter].imdb_id];
 
-        if (movie && movie['watched'] == false && movie[this.positiveActionName] === undefined) {
+        if (movie && movie.attributes['watched'] == false && movie.attributes[this.positiveActionName] === undefined) {
           this.currentMovie = this.movies[iter];
           break;
         }
@@ -241,6 +243,8 @@ export class MoviemarkerComponent implements OnInit {
     this.refreshEntries();
     console.log(this.watchDb);
   }
+
+  public keys(o) {return Object.keys(o)}
 
   public csvJSON(csv) {
 
