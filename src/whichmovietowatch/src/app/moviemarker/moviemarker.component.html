@@ -13,7 +13,8 @@
 
   <div class="navbar-centre-right">
     <button mat-raised-button color="accent" (click)="saveHistory()">Save</button>
-    <button id="signout_button" mat-raised-button color="warn" (click)="gapiService.signOut()">Sign Out</button>
+    <button id="signout_button" mat-raised-button color="warn" (click)="signOut()" *ngIf="userProfile">Sign Out</button>
+    <button id="signin_button" mat-raised-button color="warn" (click)="gapiService.signIn()" *ngIf="!userProfile">Sign In</button>
   </div>
 
   <div class="navbar-right">

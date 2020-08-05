@@ -241,8 +241,10 @@ export class MoviemarkerComponent implements OnInit {
       }
     }
 
-    this.currentMovieSearchLink = this.sanitizer.bypassSecurityTrustResourceUrl(
-      "https://www.bing.com/images/search?q=" + this.currentMovie.title + " movie");
+    if (this.currentMovie) {
+      this.currentMovieSearchLink = this.sanitizer.bypassSecurityTrustResourceUrl(
+        "https://www.bing.com/images/search?q=" + this.currentMovie.title + " movie");
+    }
   }
 
   public removeWatched(movie: { movie: Movie }) {
@@ -250,6 +252,11 @@ export class MoviemarkerComponent implements OnInit {
     delete this.watchDb[movie.movie.imdb_id];
     this.refreshEntries();
     console.log(this.watchDb);
+  }
+
+  public signOut() {
+    this.gapiService.signOut();
+    this.userProfile = null;
   }
 
   public keys(o) {return Object.keys(o)}
